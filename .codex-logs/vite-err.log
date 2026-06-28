@@ -1,0 +1,23 @@
+node:internal/fs/watchers:321
+    const error = new UVException({
+                  ^
+
+Error: EBUSY: resource busy or locked, watch 'C:\Users\廖国兵\Desktop\个人站\3D作品集\三维视频\英国烟油视频.mp4._00_'
+    at FSWatcher.<computed> (node:internal/fs/watchers:321:19)
+    at Object.watch (node:fs:2548:36)
+    at createFsWatchInstance (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:12958:16)
+    at setFsWatchListener (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:13000:14)
+    at NodeFsHandler$1._watchWithNodeFs (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:13114:20)
+    at NodeFsHandler$1._handleFile (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:13158:24)
+    at NodeFsHandler$1._addToNodeFs (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:13332:26)
+Emitted 'error' event on FSWatcher instance at:
+    at FSWatcher._handleError (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:14133:148)
+    at NodeFsHandler$1._addToNodeFs (file:///C:/Users/%E5%BB%96%E5%9B%BD%E5%85%B5/Desktop/%E4%B8%AA%E4%BA%BA%E7%AB%99/3D%E4%BD%9C%E5%93%81%E9%9B%86/node_modules/vite/dist/node/chunks/config.js:13337:18) {
+  errno: -4082,
+  syscall: 'watch',
+  code: 'EBUSY',
+  path: 'C:\\Users\\廖国兵\\Desktop\\个人站\\3D作品集\\三维视频\\英国烟油视频.mp4._00_',
+  filename: 'C:\\Users\\廖国兵\\Desktop\\个人站\\3D作品集\\三维视频\\英国烟油视频.mp4._00_'
+}
+
+Node.js v24.18.0

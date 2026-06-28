@@ -1,0 +1,121 @@
+
+> jack-3d-portfolio@0.1.0 dev
+> vite --host 127.0.0.1 --host 127.0.0.1 --port 5173
+
+
+  VITE v7.3.6  ready in 425 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+21:50:37 [vite] (client) hmr update /src/App.tsx
+21:51:20 [vite] (client) hmr update /src/styles.css
+21:51:34 [vite] (client) hmr update /src/styles.css
+21:52:31 [vite] (client) ✨ new dependencies optimized: ogl
+21:52:31 [vite] (client) ✨ optimized dependencies changed. reloading
+21:56:39 [vite] (client) hmr update /src/App.tsx
+21:57:00 [vite] (client) hmr update /src/styles.css
+22:03:09 [vite] (client) hmr update /src/styles.css
+22:03:37 [vite] (client) hmr update /src/styles.css
+22:11:18 [vite] (client) hmr update /src/App.tsx
+22:11:29 [vite] (client) hmr update /src/App.tsx
+22:11:49 [vite] (client) hmr update /src/App.tsx
+22:12:09 [vite] (client) hmr update /src/styles.css
+22:15:12 [vite] (client) hmr update /src/styles.css
+22:20:47 [vite] (client) hmr update /src/App.tsx
+22:21:03 [vite] (client) hmr update /src/styles.css
+22:31:38 [vite] (client) hmr update /src/App.tsx
+22:31:53 [vite] (client) hmr update /src/styles.css
+22:33:38 [vite] (client) ✨ new dependencies optimized: three
+22:33:38 [vite] (client) ✨ optimized dependencies changed. reloading
+22:42:26 [vite] (client) hmr update /src/App.tsx
+22:42:55 [vite] (client) hmr update /src/styles.css
+22:55:57 [vite] (client) hmr update /src/App.tsx
+22:56:57 [vite] (client) hmr update /src/App.tsx
+22:57:58 [vite] (client) hmr update /src/App.tsx
+22:58:09 [vite] (client) hmr update /src/App.tsx
+22:58:54 [vite] (client) hmr update /src/App.tsx
+22:59:44 [vite] (client) hmr update /src/App.tsx
+22:59:56 [vite] (client) hmr update /src/App.tsx
+23:01:12 [vite] (client) hmr update /src/App.tsx
+23:01:24 [vite] (client) hmr update /src/App.tsx
+23:02:38 [vite] (client) hmr update /src/App.tsx
+23:03:41 [vite] (client) hmr update /src/App.tsx
+23:03:51 [vite] (client) hmr update /src/App.tsx
+23:04:41 [vite] (client) hmr update /src/styles.css
+23:04:54 [vite] (client) hmr update /src/styles.css
+23:05:12 [vite] (client) hmr update /src/styles.css
+23:05:26 [vite] (client) hmr update /src/styles.css
+23:05:43 [vite] (client) hmr update /src/styles.css
+23:19:20 [vite] (client) hmr update /src/App.tsx
+23:19:40 [vite] (client) hmr update /src/styles.css
+23:19:59 [vite] (client) hmr update /src/styles.css
+23:20:12 [vite] (client) hmr update /src/styles.css
+23:22:43 [vite] (client) hmr update /src/styles.css
+23:22:56 [vite] (client) hmr update /src/styles.css
+23:35:26 [vite] (client) hmr update /src/App.tsx
+23:35:56 [vite] (client) hmr update /src/styles.css
+23:36:25 [vite] (client) hmr update /src/styles.css
+23:38:41 [vite] (client) hmr update /src/styles.css
+23:49:03 [vite] (client) hmr update /src/App.tsx
+23:51:23 [vite] (client) hmr update /src/App.tsx
+23:51:23 [vite] (client) ✨ new dependencies optimized: gsap, gsap/ScrollTrigger
+23:51:23 [vite] (client) ✨ optimized dependencies changed. reloading
+23:51:59 [vite] (client) hmr update /src/App.tsx
+23:52:42 [vite] (client) hmr update /src/App.tsx
+23:53:23 [vite] (client) hmr update /src/styles.css
+23:53:55 [vite] (client) hmr update /src/styles.css
+23:54:16 [vite] (client) hmr update /src/styles.css
+23:54:40 [vite] (client) hmr update /src/styles.css
+23:56:20 [vite] (client) hmr update /src/App.tsx
+23:56:54 [vite] (client) hmr update /src/App.tsx
+23:57:37 [vite] (client) hmr update /src/styles.css
+23:57:53 [vite] (client) hmr update /src/styles.css
+00:00:54 [vite] (client) hmr update /src/App.tsx
+00:02:14 [vite] (client) hmr update /src/App.tsx
+00:03:44 [vite] (client) hmr update /src/App.tsx
+00:04:16 [vite] (client) hmr update /src/App.tsx
+00:09:50 [vite] (client) hmr update /src/App.tsx
+00:09:50 [vite] (client) hmr update /src/styles.css
+00:09:50 [vite] (client) hmr update /src/App.tsx
+00:09:50 [vite] (client) hmr update /src/styles.css
+00:10:28 [vite] (client) hmr update /src/App.tsx
+00:10:28 [vite] (client) hmr update /src/styles.css
+00:10:29 [vite] (client) hmr update /src/App.tsx
+00:10:29 [vite] (client) hmr update /src/styles.css
+00:26:04 [vite] (client) hmr update /src/App.tsx
+00:26:05 [vite] (client) hmr update /src/App.tsx
+00:28:04 [vite] (client) hmr update /src/App.tsx
+00:28:04 [vite] (client) hmr update /src/App.tsx
+00:35:03 [vite] (client) hmr update /src/App.tsx
+00:35:03 [vite] (client) hmr update /src/App.tsx
+00:39:06 [vite] (client) hmr update /src/App.tsx
+00:39:06 [vite] (client) hmr update /src/App.tsx
+00:45:49 [vite] (client) hmr update /src/App.tsx
+00:45:49 [vite] (client) hmr update /src/App.tsx
+00:46:17 [vite] (client) hmr update /src/App.tsx
+00:46:18 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) hmr update /src/App.tsx
+01:28:43 [vite] (client) page reload 三维视频/092（HBAR）.mp4
+01:28:44 [vite] (client) page reload 三维视频/119沙特20240710.mp4
+01:28:44 [vite] (client) page reload 三维视频/119沙特20240710.mp4
+01:28:44 [vite] (client) page reload 三维视频/H106粉色.mp4
+01:28:45 [vite] (client) page reload 三维视频/H608视频.mp4
+01:28:45 [vite] (client) page reload 三维视频/H6112024119.mp4
+01:28:46 [vite] (client) page reload 三维视频/英国烟油视频.mp4
+02:06:01 [vite] (client) hmr update /src/App.tsx
+02:06:22 [vite] (client) hmr update /src/App.tsx
+02:06:41 [vite] (client) hmr update /src/App.tsx
+02:06:51 [vite] (client) hmr update /src/App.tsx
+02:08:51 [vite] (client) hmr update /src/App.tsx
+02:08:51 [vite] (client) hmr update /src/App.tsx
+02:09:04 [vite] (client) hmr update /src/App.tsx
+02:09:46 [vite] (client) hmr update /src/App.tsx
+02:09:46 [vite] (client) hmr update /src/App.tsx
+02:10:00 [vite] (client) hmr update /src/App.tsx
+02:10:51 [vite] (client) hmr update /src/App.tsx
+02:10:52 [vite] (client) hmr update /src/App.tsx
+02:11:00 [vite] (client) hmr update /src/App.tsx
