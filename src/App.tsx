@@ -838,7 +838,7 @@ const getEmbedUrl = (url: string) => {
 
 function VideoPlayer({ video }: { video: PortfolioVideo }) {
   if (isDirectVideoUrl(video.videoUrl)) {
-    return <video controls preload="none" src={video.videoUrl} />;
+    return <video controls poster={video.cover} preload="metadata" src={video.videoUrl} />;
   }
 
   return (
