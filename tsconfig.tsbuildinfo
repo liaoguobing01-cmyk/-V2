@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/aurora.tsx","./src/components/borderglow.tsx","./src/components/liquidether.tsx","./src/components/softaurora.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/aurora.tsx","./src/components/borderglow.tsx","./src/components/liquidether.tsx","./src/components/softaurora.tsx","./src/data/assets.ts","./src/data/videos.ts"],"version":"5.9.3"}

@@ -18,25 +18,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Aurora from "./components/Aurora";
 import BorderGlow from "./components/BorderGlow";
 import LiquidEther from "./components/LiquidEther";
-
-const imageAssets = {
-  ...import.meta.glob("../视觉设计/**/*.{png,jpg,jpeg,webp}", {
-    eager: true,
-    query: "?url",
-    import: "default",
-  }),
-  ...import.meta.glob("../三维渲染/**/*.{png,jpg,jpeg,webp}", {
-    eager: true,
-    query: "?url",
-    import: "default",
-  }),
-} as Record<string, string>;
-
-const videoAssets = import.meta.glob("../三维视频/*.mp4", {
-  eager: true,
-  query: "?url",
-  import: "default",
-}) as Record<string, string>;
+import { imageAssets } from "./data/assets";
+import { videos, type PortfolioVideo } from "./data/videos";
 
 type WorkImage = {
   title: string;
@@ -53,8 +36,8 @@ type Research = {
 };
 
 const asset = (path: string) => {
-  const normalizedPath = `../${path.replace(/\\/g, "/")}`;
-  const source = imageAssets[normalizedPath] ?? videoAssets[normalizedPath];
+  const normalizedPath = path.replace(/\\/g, "/");
+  const source = imageAssets[normalizedPath];
 
   if (!source) {
     throw new Error(`Missing asset: ${path}`);
@@ -147,24 +130,7 @@ const vapeRender: WorkImage[] = [
   { title: "电子烟 12", path: "三维渲染/电子烟/Ｃ1_0090.png", width: 1920, height: 1080 },
 ];
 
-const getVideoFileName = (path: string) => path.split("/").pop() ?? path;
-
-const videos = Object.keys(videoAssets).sort((a, b) =>
-  getVideoFileName(a).localeCompare(getVideoFileName(b), "zh-Hans-CN", {
-    numeric: true,
-    sensitivity: "base",
-  }),
-).map((path, index) => {
-  const fileName = getVideoFileName(path);
-
-  return {
-  title: `三维视频 ${String(index + 1).padStart(2, "0")}`,
-  fileName,
-  path: `三维视频/${fileName}`,
-  };
-});
-
-const heroVideo = videos.find((video) => video.fileName.includes("H6112024119")) ?? videos[0];
+const heroVideo = videos[0];
 
 const chargerResearch: Research = {
   audiences: ["高端数码商旅用户", "居家多设备家庭用户", "跨境礼品企业采购"],
@@ -396,7 +362,7 @@ function usePortfolioMotion() {
       });
       gsap.set(".intro-line", { autoAlpha: 0, scaleX: 0, transformOrigin: "left center" });
       gsap.set(".site-header", { autoAlpha: 0, filter: "blur(16px)", xPercent: -50, y: -44 });
-      gsap.set(".hero-video-bg video", {
+      gsap.set(".hero-video-bg img, .hero-video-bg video", {
         filter: "blur(30px) saturate(150%) contrast(116%) brightness(0.64)",
         scale: 1.18,
         xPercent: 2,
@@ -438,7 +404,7 @@ function usePortfolioMotion() {
           duration: 1.65,
         })
         .to(
-          ".hero-video-bg video",
+          ".hero-video-bg img, .hero-video-bg video",
           {
             filter: "blur(16px) saturate(125%) contrast(108%) brightness(0.8)",
             scale: 1.04,
@@ -662,7 +628,7 @@ function usePortfolioMotion() {
         });
       });
 
-      gsap.utils.toArray<HTMLElement>(".image-frame img, .directory-card img, .video-card video").forEach((media) => {
+      gsap.utils.toArray<HTMLElement>(".image-frame img, .directory-card img, .video-card iframe, .video-card video").forEach((media) => {
         const trigger = media.closest<HTMLElement>(".image-frame, .directory-card, .video-card") ?? media;
 
         gsap.fromTo(
@@ -842,6 +808,50 @@ function DimensionGallery({
   );
 }
 
+const isDirectVideoUrl = (url: string) => /\.(mp4|webm|ogg)(\?.*)?$/i.test(url) || /\/video\/upload\//i.test(url);
+
+const getEmbedUrl = (url: string) => {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "");
+
+    if (host === "youtu.be") {
+      const id = parsed.pathname.split("/").filter(Boolean)[0];
+      return id ? `https://www.youtube.com/embed/${id}` : url;
+    }
+
+    if (host.endsWith("youtube.com")) {
+      const id = parsed.searchParams.get("v") ?? parsed.pathname.split("/").filter(Boolean).pop();
+      return id ? `https://www.youtube.com/embed/${id}` : url;
+    }
+
+    if (host.endsWith("vimeo.com")) {
+      const id = parsed.pathname.split("/").filter(Boolean).pop();
+      return id ? `https://player.vimeo.com/video/${id}` : url;
+    }
+
+    return url;
+  } catch {
+    return url;
+  }
+};
+
+function VideoPlayer({ video }: { video: PortfolioVideo }) {
+  if (isDirectVideoUrl(video.videoUrl)) {
+    return <video controls preload="metadata" poster={asset(video.cover)} src={video.videoUrl} />;
+  }
+
+  return (
+    <iframe
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      allowFullScreen
+      loading="lazy"
+      src={getEmbedUrl(video.videoUrl)}
+      title={video.title}
+    />
+  );
+}
+
 function ResearchPanel({ research }: { research: Research }) {
   return (
     <GlowFrame className="research-glow-card">
@@ -913,7 +923,7 @@ function ProfileSection() {
   return (
     <section className="hero-section" id="profile">
       <div className="hero-video-bg" aria-hidden="true">
-        {heroVideo ? <video autoPlay loop muted playsInline preload="metadata" src={asset(heroVideo.path)} /> : null}
+        {heroVideo ? <img src={asset(heroVideo.cover)} alt="" /> : null}
       </div>
       <div className="hero-aurora-bg" aria-hidden="true">
         <Aurora colorStops={["#8ccfd8", "#5227ff", "#dd6b5a"]} blend={0.44} amplitude={0.92} speed={0.42} />
@@ -1174,13 +1184,13 @@ function VideoSection() {
         />
         <div className="video-grid">
           {videos.map((video, index) => (
-            <FadeIn className="video-card-shell" delay={index * 0.04} key={video.fileName}>
+            <FadeIn className="video-card-shell" delay={index * 0.04} key={`${video.title}-${video.videoUrl}`}>
               <GlowFrame className="video-glow-card">
                 <div className="video-card">
-                  <video controls preload="metadata" src={asset(video.path)} />
+                  <VideoPlayer video={video} />
                   <div>
                     <span>{video.title}</span>
-                    <strong>{video.fileName.replace(".mp4", "")}</strong>
+                    <strong>{video.title}</strong>
                   </div>
                 </div>
               </GlowFrame>
