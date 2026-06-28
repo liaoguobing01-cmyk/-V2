@@ -347,10 +347,36 @@ function usePortfolioMotion() {
     document.documentElement.classList.add("motion-enhanced");
     ScrollTrigger.config({ ignoreMobileResize: true });
 
+    const cleanupFns: Array<() => void> = [];
+
     const ctx = gsap.context(() => {
       const cinematicEase = "expo.out";
       const smoothEase = "power4.out";
       const longEase = "power3.out";
+      const cursor = document.querySelector<HTMLElement>(".agency-cursor");
+
+      gsap.to(".agency-progress-bar", {
+        ease: "none",
+        scaleX: 1,
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.35,
+        },
+      });
+
+      if (cursor && window.matchMedia("(pointer: fine)").matches) {
+        const moveX = gsap.quickTo(cursor, "x", { duration: 0.78, ease: "power3.out" });
+        const moveY = gsap.quickTo(cursor, "y", { duration: 0.78, ease: "power3.out" });
+        const handlePointerMove = (event: PointerEvent) => {
+          moveX(event.clientX);
+          moveY(event.clientY);
+        };
+
+        window.addEventListener("pointermove", handlePointerMove, { passive: true });
+        cleanupFns.push(() => window.removeEventListener("pointermove", handlePointerMove));
+      }
 
       gsap.set(".intro-curtain", { clipPath: "inset(0% 0% 0% 0%)" });
       gsap.set(".intro-mark span, .intro-mark strong", {
@@ -361,6 +387,19 @@ function usePortfolioMotion() {
         yPercent: 120,
       });
       gsap.set(".intro-line", { autoAlpha: 0, scaleX: 0, transformOrigin: "left center" });
+      gsap.set(".hero-agency-word", {
+        autoAlpha: 0,
+        clipPath: "inset(0% 100% 0% 0%)",
+        filter: "blur(24px)",
+        scaleX: 0.6,
+        transformOrigin: "right center",
+        xPercent: 12,
+      });
+      gsap.set(".hero-kinetic-frame span", {
+        autoAlpha: 0,
+        scaleX: 0,
+        transformOrigin: "left center",
+      });
       gsap.set(".site-header", { autoAlpha: 0, filter: "blur(16px)", xPercent: -50, y: -44 });
       gsap.set(".hero-video-bg img, .hero-video-bg video", {
         filter: "blur(30px) saturate(150%) contrast(116%) brightness(0.64)",
@@ -412,6 +451,29 @@ function usePortfolioMotion() {
             xPercent: 0,
           },
           0,
+        )
+        .to(
+          ".hero-agency-word",
+          {
+            autoAlpha: 1,
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: 1.85,
+            filter: "blur(0px)",
+            scaleX: 1,
+            xPercent: 0,
+          },
+          0.58,
+        )
+        .to(
+          ".hero-kinetic-frame span",
+          {
+            autoAlpha: 1,
+            duration: 1.14,
+            ease: smoothEase,
+            scaleX: 1,
+            stagger: 0.08,
+          },
+          0.78,
         )
         .to(
           ".site-header",
@@ -577,6 +639,50 @@ function usePortfolioMotion() {
         });
       });
 
+      gsap.utils.toArray<HTMLElement>(".agency-word").forEach((word) => {
+        const isRight = word.classList.contains("agency-word-right");
+        const section = word.closest<HTMLElement>("section, footer") ?? word;
+
+        gsap.fromTo(
+          word,
+          {
+            autoAlpha: 0,
+            clipPath: isRight ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)",
+            filter: "blur(18px)",
+            scaleX: 0.62,
+            transformOrigin: isRight ? "right center" : "left center",
+            xPercent: isRight ? 14 : -14,
+            y: 72,
+          },
+          {
+            autoAlpha: 1,
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: 1.62,
+            ease: smoothEase,
+            filter: "blur(0px)",
+            scaleX: 1,
+            xPercent: 0,
+            y: 0,
+            scrollTrigger: {
+              trigger: section,
+              start: "top 82%",
+              once: true,
+            },
+          },
+        );
+
+        gsap.to(word, {
+          ease: "none",
+          xPercent: isRight ? -7 : 7,
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.2,
+          },
+        });
+      });
+
       const revealGroups: Array<{ selector: string; targets?: string }> = [
         { selector: ".timeline", targets: ".timeline-item" },
         { selector: ".strength-grid", targets: ".strength-card-shell" },
@@ -656,12 +762,26 @@ function usePortfolioMotion() {
           },
         );
       });
+
+      gsap.utils.toArray<HTMLElement>(".image-frame, .directory-card a, .video-card").forEach((frame, index) => {
+        gsap.to(frame, {
+          ease: "none",
+          yPercent: index % 2 === 0 ? -3.5 : 3.5,
+          scrollTrigger: {
+            trigger: frame,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.35,
+          },
+        });
+      });
     });
 
     motionWindow.__portfolioMotionReady = true;
 
     return () => {
       document.documentElement.classList.remove("motion-enhanced");
+      cleanupFns.forEach((cleanup) => cleanup());
       ctx.revert();
     };
   }, []);
@@ -676,6 +796,28 @@ function FadeIn({
   delay?: number;
 }) {
   return <div className={className}>{children}</div>;
+}
+
+function AgencyLayer() {
+  return (
+    <>
+      <div className="agency-noise" aria-hidden="true" />
+      <div className="agency-progress" aria-hidden="true">
+        <span className="agency-progress-bar" />
+      </div>
+      <div className="agency-cursor" aria-hidden="true" />
+    </>
+  );
+}
+
+function AgencyWord({
+  align = "left",
+  children,
+}: {
+  align?: "left" | "right";
+  children: ReactNode;
+}) {
+  return <div className={`agency-word agency-word-${align}`} aria-hidden="true">{children}</div>;
 }
 
 function SectionHeading({
@@ -936,6 +1078,13 @@ function ProfileSection() {
           <i className="intro-line" />
         </div>
       </div>
+      <div className="hero-agency-word" aria-hidden="true">Creative 3D</div>
+      <div className="hero-kinetic-frame" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       <Header />
       <div className="wide-container hero-grid">
         <FadeIn className="hero-copy">
@@ -993,6 +1142,7 @@ function ProfileSection() {
 function ExperienceSection() {
   return (
     <section className="section section-light" id="experience">
+      <AgencyWord align="right">Experience</AgencyWord>
       <div className="wide-container">
         <SectionHeading
           eyebrow="Experience"
@@ -1021,6 +1171,7 @@ function ExperienceSection() {
 function StrengthSection() {
   return (
     <section className="section section-dark" id="strengths">
+      <AgencyWord>Strength</AgencyWord>
       <div className="wide-container">
         <SectionHeading
           eyebrow="Strength"
@@ -1079,6 +1230,7 @@ function StrengthSection() {
 function DirectorySection() {
   return (
     <section className="section section-light" id="directory">
+      <AgencyWord align="right">Selected</AgencyWord>
       <div className="wide-container">
         <SectionHeading
           eyebrow="Selected Catalog"
@@ -1128,6 +1280,7 @@ function VisualProjectSection({
 }) {
   return (
     <section className="section project-section" id={id}>
+      <AgencyWord align={index === "01" ? "left" : "right"}>{`Case ${index}`}</AgencyWord>
       <div className="wide-container">
         <FadeIn className="project-header">
           <div>
@@ -1149,6 +1302,7 @@ function VisualProjectSection({
 function RenderSection() {
   return (
     <section className="section section-light render-section" id="renders">
+      <AgencyWord>Rendering</AgencyWord>
       <div className="wide-container">
         <SectionHeading
           eyebrow="3D Rendering"
@@ -1176,6 +1330,7 @@ function RenderSection() {
 function VideoSection() {
   return (
     <section className="section section-dark" id="videos">
+      <AgencyWord align="right">Motion</AgencyWord>
       <div className="wide-container">
         <SectionHeading
           eyebrow="3D Motion"
@@ -1205,6 +1360,7 @@ function VideoSection() {
 function ContactSection() {
   return (
     <footer className="contact-section" id="contact">
+      <AgencyWord>Contact</AgencyWord>
       <div className="wide-container contact-grid">
         <FadeIn>
           <p className="eyebrow">Contact</p>
@@ -1264,6 +1420,7 @@ function App() {
 
   return (
     <main>
+      <AgencyLayer />
       <ProfileSection />
       <BelowHeroBackground>
         <ExperienceSection />
