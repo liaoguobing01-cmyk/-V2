@@ -838,7 +838,7 @@ const getEmbedUrl = (url: string) => {
 
 function VideoPlayer({ video }: { video: PortfolioVideo }) {
   if (isDirectVideoUrl(video.videoUrl)) {
-    return <video controls preload="metadata" poster={asset(video.cover)} src={video.videoUrl} />;
+    return <video controls preload="metadata" src={video.videoUrl} />;
   }
 
   return (
@@ -923,7 +923,7 @@ function ProfileSection() {
   return (
     <section className="hero-section" id="profile">
       <div className="hero-video-bg" aria-hidden="true">
-        {heroVideo ? <img src={asset(heroVideo.cover)} alt="" /> : null}
+        {heroVideo ? <video autoPlay loop muted playsInline preload="metadata" src={heroVideo.videoUrl} /> : null}
       </div>
       <div className="hero-aurora-bg" aria-hidden="true">
         <Aurora colorStops={["#8ccfd8", "#5227ff", "#dd6b5a"]} blend={0.44} amplitude={0.92} speed={0.42} />
