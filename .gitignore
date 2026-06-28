@@ -1,1 +1,25 @@
+node_modules/
 dist/
+
+# Local environment files
+.env
+.env.*
+
+# Cloudflare / Wrangler local state
+.wrangler/
+.cloudflare/
+
+# Keep videos on Cloudinary, not in GitHub / Cloudflare Pages
+三维视频/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
