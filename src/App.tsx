@@ -130,7 +130,7 @@ const vapeRender: WorkImage[] = [
   { title: "电子烟 12", path: "三维渲染/电子烟/Ｃ1_0090.png", width: 1920, height: 1080 },
 ];
 
-const heroVideo = videos[0];
+const heroVideo = videos.find((video) => video.title === "H6112024119") ?? videos[0];
 
 const chargerResearch: Research = {
   audiences: ["高端数码商旅用户", "居家多设备家庭用户", "跨境礼品企业采购"],
@@ -838,7 +838,7 @@ const getEmbedUrl = (url: string) => {
 
 function VideoPlayer({ video }: { video: PortfolioVideo }) {
   if (isDirectVideoUrl(video.videoUrl)) {
-    return <video controls poster={video.cover} preload="metadata" src={video.videoUrl} />;
+    return <video controls preload="none" src={video.videoUrl} />;
   }
 
   return (
