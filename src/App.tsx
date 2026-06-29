@@ -327,10 +327,7 @@ function usePortfolioMotion() {
       savedMotionOverride = motionOverride === "on" || motionOverride === "off" ? motionOverride : "";
     }
 
-    const forceMotion = savedMotionOverride === "on";
-    const reduceMotion =
-      !forceMotion &&
-      (savedMotionOverride === "off" || window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const reduceMotion = savedMotionOverride === "off";
 
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     document.documentElement.classList.remove("motion-enhanced", "motion-reduced");
