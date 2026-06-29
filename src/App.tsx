@@ -1,4 +1,4 @@
-import { useLayoutEffect, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, type ComponentType, type ReactNode } from "react";
 import {
   ArrowUpRight,
   Boxes,
@@ -15,9 +15,7 @@ import {
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Aurora from "./components/Aurora";
 import BorderGlow from "./components/BorderGlow";
-import LiquidEther from "./components/LiquidEther";
 import { imageAssets } from "./data/assets";
 import { videos, type PortfolioVideo } from "./data/videos";
 
@@ -308,6 +306,80 @@ type MotionWindow = Window & {
   __portfolioMotionReady?: boolean;
 };
 
+type AuroraProps = {
+  amplitude?: number;
+  blend?: number;
+  colorStops?: string[];
+  speed?: number;
+};
+
+type LiquidEtherProps = {
+  autoDemo?: boolean;
+  autoIntensity?: number;
+  autoRampDuration?: number;
+  autoResumeDelay?: number;
+  autoSpeed?: number;
+  colors?: string[];
+  cursorSize?: number;
+  mouseForce?: number;
+  resolution?: number;
+  takeoverDuration?: number;
+};
+
+const loadAuroraComponent = () =>
+  import("./components/Aurora") as Promise<{ default: ComponentType<AuroraProps> }>;
+const loadLiquidEtherComponent = () =>
+  import("./components/LiquidEther") as Promise<{ default: ComponentType<LiquidEtherProps> }>;
+
+function useDesktopComponent<TProps extends object>(
+  loader: () => Promise<{ default: ComponentType<TProps> }>,
+  enabled: boolean,
+) {
+  const [Component, setComponent] = useState<ComponentType<TProps> | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!enabled) {
+      setComponent(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    loader().then((module) => {
+      if (!cancelled) {
+        setComponent(() => module.default);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, loader]);
+
+  return Component;
+}
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    const handleChange = () => setMatches(mediaQuery.matches);
+
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
+}
+
 function usePortfolioMotion() {
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -351,6 +423,13 @@ function usePortfolioMotion() {
       const smoothEase = "power4.out";
       const longEase = "power3.out";
       const cursor = document.querySelector<HTMLElement>(".agency-cursor");
+      const isMobileMotion = window.matchMedia("(max-width: 860px)").matches;
+      const heroVideoStartFilter = isMobileMotion
+        ? "blur(10px) saturate(112%) contrast(104%) brightness(0.7)"
+        : "blur(30px) saturate(150%) contrast(116%) brightness(0.64)";
+      const heroVideoEndFilter = isMobileMotion
+        ? "blur(8px) saturate(112%) contrast(104%) brightness(0.74)"
+        : "blur(16px) saturate(125%) contrast(108%) brightness(0.8)";
 
       gsap.to(".agency-progress-bar", {
         ease: "none",
@@ -387,20 +466,20 @@ function usePortfolioMotion() {
       gsap.set(".hero-agency-word", {
         autoAlpha: 0,
         clipPath: "inset(0% 100% 0% 0%)",
-        filter: "blur(24px)",
-        scaleX: 0.6,
+        filter: isMobileMotion ? "blur(0px)" : "blur(24px)",
+        scaleX: isMobileMotion ? 0.78 : 0.6,
         transformOrigin: "right center",
-        xPercent: 12,
+        xPercent: isMobileMotion ? 6 : 12,
       });
       gsap.set(".hero-kinetic-frame span", {
         autoAlpha: 0,
         scaleX: 0,
         transformOrigin: "left center",
       });
-      gsap.set(".site-header", { autoAlpha: 0, filter: "blur(16px)", xPercent: -50, y: -44 });
+      gsap.set(".site-header", { autoAlpha: 0, filter: isMobileMotion ? "blur(0px)" : "blur(16px)", xPercent: -50, y: -44 });
       gsap.set(".hero-video-bg img, .hero-video-bg video", {
-        filter: "blur(30px) saturate(150%) contrast(116%) brightness(0.64)",
-        scale: 1.18,
+        filter: heroVideoStartFilter,
+        scale: isMobileMotion ? 1.08 : 1.18,
         xPercent: 2,
       });
       gsap.set(".hero-copy", {
@@ -442,9 +521,9 @@ function usePortfolioMotion() {
         .to(
           ".hero-video-bg img, .hero-video-bg video",
           {
-            filter: "blur(16px) saturate(125%) contrast(108%) brightness(0.8)",
-            scale: 1.04,
-            duration: 2.6,
+            filter: heroVideoEndFilter,
+            scale: isMobileMotion ? 1.02 : 1.04,
+            duration: isMobileMotion ? 1.8 : 2.6,
             xPercent: 0,
           },
           0,
@@ -497,7 +576,15 @@ function usePortfolioMotion() {
         )
         .fromTo(
           ".hero-copy .eyebrow",
-          { autoAlpha: 0, filter: "blur(12px)", letterSpacing: "0.42em", scaleX: 1.72, transformOrigin: "left center", x: -72, y: 32 },
+          {
+            autoAlpha: 0,
+            filter: isMobileMotion ? "blur(0px)" : "blur(12px)",
+            letterSpacing: isMobileMotion ? "0.18em" : "0.42em",
+            scaleX: isMobileMotion ? 1.12 : 1.72,
+            transformOrigin: "left center",
+            x: isMobileMotion ? -20 : -72,
+            y: isMobileMotion ? 18 : 32,
+          },
           { autoAlpha: 1, duration: 1.36, filter: "blur(0px)", letterSpacing: "0.12em", scaleX: 1, x: 0, y: 0 },
           1.12,
         )
@@ -506,11 +593,11 @@ function usePortfolioMotion() {
           {
             autoAlpha: 0,
             clipPath: "inset(0% 100% 0% 0%)",
-            filter: "blur(22px)",
-            scaleX: 0.52,
-            scaleY: 1.24,
+            filter: isMobileMotion ? "blur(0px)" : "blur(22px)",
+            scaleX: isMobileMotion ? 0.76 : 0.52,
+            scaleY: isMobileMotion ? 1.08 : 1.24,
             transformOrigin: "left center",
-            yPercent: 46,
+            yPercent: isMobileMotion ? 28 : 46,
           },
           {
             autoAlpha: 1,
@@ -525,13 +612,19 @@ function usePortfolioMotion() {
         )
         .fromTo(
           ".hero-copy h1 span",
-          { autoAlpha: 0, clipPath: "inset(0% 0% 100% 0%)", scaleX: 0.84, transformOrigin: "left center", yPercent: 92 },
+          {
+            autoAlpha: 0,
+            clipPath: "inset(0% 0% 100% 0%)",
+            scaleX: 0.84,
+            transformOrigin: "left center",
+            yPercent: isMobileMotion ? 48 : 92,
+          },
           { autoAlpha: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.24, scaleX: 1, yPercent: 0 },
           1.5,
         )
         .fromTo(
           ".hero-lead",
-          { autoAlpha: 0, filter: "blur(12px)", y: 56 },
+          { autoAlpha: 0, filter: isMobileMotion ? "blur(0px)" : "blur(12px)", y: isMobileMotion ? 28 : 56 },
           { autoAlpha: 1, duration: 1.28, filter: "blur(0px)", y: 0 },
           1.66,
         )
@@ -547,8 +640,22 @@ function usePortfolioMotion() {
         )
         .fromTo(
           ".stat-card-shell",
-          { autoAlpha: 0, clipPath: "inset(34% 0% 0% 0%)", rotateX: -18, transformPerspective: 1000, y: 96 },
-          { autoAlpha: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.24, ease: smoothEase, rotateX: 0, stagger: 0.1, y: 0 },
+          {
+            autoAlpha: 0,
+            clipPath: "inset(34% 0% 0% 0%)",
+            rotateX: isMobileMotion ? 0 : -18,
+            transformPerspective: 1000,
+            y: isMobileMotion ? 42 : 96,
+          },
+          {
+            autoAlpha: 1,
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: isMobileMotion ? 0.92 : 1.24,
+            ease: smoothEase,
+            rotateX: 0,
+            stagger: isMobileMotion ? 0.04 : 0.1,
+            y: 0,
+          },
           2,
         );
 
@@ -578,13 +685,13 @@ function usePortfolioMotion() {
               kicker,
               {
                 autoAlpha: 0,
-                filter: "blur(18px)",
-                letterSpacing: "0.56em",
-                scale: 2.2,
-                scaleX: 1.68,
+                filter: isMobileMotion ? "blur(0px)" : "blur(18px)",
+                letterSpacing: isMobileMotion ? "0.18em" : "0.56em",
+                scale: isMobileMotion ? 1.12 : 2.2,
+                scaleX: isMobileMotion ? 1.08 : 1.68,
                 transformOrigin: "left center",
-                x: -150,
-                y: 72,
+                x: isMobileMotion ? -24 : -150,
+                y: isMobileMotion ? 28 : 72,
               },
               {
                 autoAlpha: 1,
@@ -605,11 +712,11 @@ function usePortfolioMotion() {
               {
                 autoAlpha: 0,
                 clipPath: "inset(0% 100% 0% 0%)",
-                filter: "blur(18px)",
-                scaleX: 0.58,
-                scaleY: 1.18,
+                filter: isMobileMotion ? "blur(0px)" : "blur(18px)",
+                scaleX: isMobileMotion ? 0.82 : 0.58,
+                scaleY: isMobileMotion ? 1.06 : 1.18,
                 transformOrigin: "left center",
-                y: 88,
+                y: isMobileMotion ? 36 : 88,
               },
               {
                 autoAlpha: 1,
@@ -628,7 +735,7 @@ function usePortfolioMotion() {
           if (copy) {
             timeline.fromTo(
               copy,
-              { autoAlpha: 0, filter: "blur(10px)", y: 48 },
+              { autoAlpha: 0, filter: isMobileMotion ? "blur(0px)" : "blur(10px)", y: isMobileMotion ? 24 : 48 },
               { autoAlpha: 1, duration: 1.1, ease: smoothEase, filter: "blur(0px)", y: 0 },
               0.52,
             );
@@ -645,11 +752,11 @@ function usePortfolioMotion() {
           {
             autoAlpha: 0,
             clipPath: isRight ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)",
-            filter: "blur(18px)",
-            scaleX: 0.62,
+            filter: isMobileMotion ? "blur(0px)" : "blur(18px)",
+            scaleX: isMobileMotion ? 0.82 : 0.62,
             transformOrigin: isRight ? "right center" : "left center",
-            xPercent: isRight ? 14 : -14,
-            y: 72,
+            xPercent: isMobileMotion ? (isRight ? 5 : -5) : isRight ? 14 : -14,
+            y: isMobileMotion ? 26 : 72,
           },
           {
             autoAlpha: 1,
@@ -668,25 +775,25 @@ function usePortfolioMotion() {
           },
         );
 
-        gsap.to(word, {
-          ease: "none",
-          xPercent: isRight ? -7 : 7,
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.2,
-          },
-        });
+        if (!isMobileMotion) {
+          gsap.to(word, {
+            ease: "none",
+            xPercent: isRight ? -7 : 7,
+            scrollTrigger: {
+              trigger: section,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.2,
+            },
+          });
+        }
       });
 
       const revealGroups: Array<{ selector: string; targets?: string }> = [
         { selector: ".timeline", targets: ".timeline-item" },
         { selector: ".strength-grid", targets: ".strength-card-shell" },
         { selector: ".tool-panel", targets: ".tool-glow-card" },
-        { selector: ".directory-grid", targets: ".directory-card" },
         { selector: ".research-glow-card" },
-        { selector: ".gallery-grid", targets: ".image-card" },
         { selector: ".contact-actions", targets: ".contact-action-glow" },
       ];
 
@@ -730,6 +837,113 @@ function usePortfolioMotion() {
         });
       });
 
+      gsap.utils.toArray<HTMLElement>(".directory-grid").forEach((grid) => {
+        const cards = Array.from(grid.querySelectorAll<HTMLElement>(".directory-card"));
+
+        gsap.fromTo(
+          isMobileMotion ? grid : cards,
+          {
+            autoAlpha: 0,
+            clipPath: isMobileMotion ? "inset(0% 0% 8% 0%)" : "inset(0% 0% 0% 18%)",
+            filter: isMobileMotion ? "none" : "blur(18px)",
+            rotateY: isMobileMotion ? 0 : -5,
+            scale: isMobileMotion ? 0.99 : 0.985,
+            transformOrigin: "left center",
+            transformPerspective: 1400,
+            willChange: "transform, opacity, clip-path, filter",
+            x: isMobileMotion ? 0 : -54,
+            y: isMobileMotion ? 28 : 0,
+          },
+          {
+            autoAlpha: 1,
+            clearProps: "willChange",
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: isMobileMotion ? 0.86 : 1.36,
+            ease: "expo.out",
+            filter: "blur(0px)",
+            rotateY: 0,
+            scale: 1,
+            stagger: isMobileMotion ? 0 : { amount: 0.26, from: "start" },
+            x: 0,
+            y: 0,
+            scrollTrigger: {
+              trigger: grid,
+              start: "top 84%",
+              once: true,
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(".project-section .gallery-grid").forEach((grid, gridIndex) => {
+        const cards = Array.from(grid.querySelectorAll<HTMLElement>(".image-card"));
+        const isEven = gridIndex % 2 === 0;
+
+        gsap.fromTo(
+          isMobileMotion ? grid : cards,
+          {
+            autoAlpha: 0,
+            clipPath: isMobileMotion ? "inset(0% 0% 10% 0%)" : isEven ? "inset(0% 100% 0% 0%)" : "inset(0% 0% 0% 100%)",
+            filter: isMobileMotion ? "none" : "blur(16px) saturate(80%)",
+            scale: isMobileMotion ? 0.99 : 1.035,
+            transformOrigin: isEven ? "left center" : "right center",
+            willChange: "transform, opacity, clip-path, filter",
+            x: isMobileMotion ? 0 : isEven ? -38 : 38,
+            y: isMobileMotion ? 26 : 0,
+          },
+          {
+            autoAlpha: 1,
+            clearProps: "willChange",
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: isMobileMotion ? 0.82 : 1.28,
+            ease: "power4.out",
+            filter: "blur(0px) saturate(100%)",
+            scale: 1,
+            stagger: isMobileMotion ? 0 : { amount: 0.46, grid: "auto", from: isEven ? "start" : "end" },
+            x: 0,
+            y: 0,
+            scrollTrigger: {
+              trigger: grid,
+              start: "top 86%",
+              once: true,
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(".render-section .gallery-grid").forEach((grid, gridIndex) => {
+        const cards = Array.from(grid.querySelectorAll<HTMLElement>(".image-card"));
+
+        gsap.fromTo(
+          isMobileMotion ? grid : cards,
+          {
+            autoAlpha: 0,
+            clipPath: isMobileMotion ? "inset(0% 0% 10% 0%)" : "inset(12% 0% 12% 0%)",
+            filter: isMobileMotion ? "none" : "blur(12px) brightness(0.84)",
+            scale: isMobileMotion ? 0.99 : 0.965,
+            transformOrigin: "center center",
+            willChange: "transform, opacity, clip-path, filter",
+            y: isMobileMotion ? 24 : gridIndex % 2 === 0 ? 54 : 32,
+          },
+          {
+            autoAlpha: 1,
+            clearProps: "willChange",
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: isMobileMotion ? 0.82 : 1.18,
+            ease: "power3.out",
+            filter: "blur(0px) brightness(1)",
+            scale: 1,
+            stagger: isMobileMotion ? 0 : { amount: 0.38, grid: "auto", from: "center" },
+            y: 0,
+            scrollTrigger: {
+              trigger: grid,
+              start: "top 88%",
+              once: true,
+            },
+          },
+        );
+      });
+
       gsap.utils.toArray<HTMLElement>(".video-grid").forEach((grid) => {
         gsap.fromTo(
           grid,
@@ -758,47 +972,59 @@ function usePortfolioMotion() {
         );
       });
 
-      gsap.utils.toArray<HTMLElement>(".image-frame img, .directory-card img").forEach((media) => {
-        const trigger = media.closest<HTMLElement>(".image-frame, .directory-card, .video-card") ?? media;
+      if (!isMobileMotion) {
+        gsap.utils.toArray<HTMLElement>(".image-frame").forEach((frame, index) => {
+          const image = frame.querySelector<HTMLElement>("img");
+          const direction = index % 3;
 
-        gsap.fromTo(
-          media,
-          {
-            clipPath: "inset(0% 100% 0% 0%)",
-            scale: 1.12,
-            willChange: "transform, clip-path",
-            xPercent: -5,
-            yPercent: 4,
-          },
-          {
-            clearProps: "willChange",
-            clipPath: "inset(0% 0% 0% 0%)",
-            duration: 1.72,
-            ease: longEase,
-            scale: 1,
-            xPercent: 0,
-            yPercent: 0,
+          if (image) {
+            gsap.fromTo(
+              image,
+              {
+                scale: direction === 0 ? 1.08 : 1.045,
+                xPercent: direction === 1 ? -2.5 : direction === 2 ? 2.5 : 0,
+                yPercent: direction === 0 ? 2.5 : 0,
+              },
+              {
+                duration: 1.3,
+                ease: longEase,
+                scale: 1,
+                xPercent: 0,
+                yPercent: 0,
+                scrollTrigger: {
+                  trigger: frame,
+                  start: "top 92%",
+                  once: true,
+                },
+              },
+            );
+          }
+
+          gsap.to(frame, {
+            ease: "none",
+            yPercent: index % 3 === 0 ? -2.4 : index % 3 === 1 ? 1.6 : -1.2,
             scrollTrigger: {
-              trigger,
-              start: "top 88%",
-              once: true,
+              trigger: frame,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.55,
             },
-          },
-        );
-      });
-
-      gsap.utils.toArray<HTMLElement>(".image-frame, .directory-card a").forEach((frame, index) => {
-        gsap.to(frame, {
-          ease: "none",
-          yPercent: index % 2 === 0 ? -3.5 : 3.5,
-          scrollTrigger: {
-            trigger: frame,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.35,
-          },
+          });
         });
-      });
+
+        gsap.utils.toArray<HTMLElement>(".directory-card a").forEach((card, index) => {
+          gsap.to(card, {
+            ease: "none",
+            yPercent: index % 2 === 0 ? -1.8 : 1.4,
+            scrollTrigger: {
+              trigger: card,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.7,
+            },
+          });
+        });
+      }
     });
 
     motionWindow.__portfolioMotionReady = true;
@@ -917,7 +1143,7 @@ function ImageCard({ image }: { image: WorkImage }) {
     <figure className="image-card">
       <GlowFrame className="image-glow-card" compact>
         <div className="image-frame" style={{ aspectRatio: `${image.width} / ${image.height}` }}>
-          <img src={asset(image.path)} alt={`${image.title} ${dimensionLabel(image)}`} loading="lazy" />
+          <img src={asset(image.path)} alt={`${image.title} ${dimensionLabel(image)}`} loading="lazy" decoding="async" />
         </div>
       </GlowFrame>
     </figure>
@@ -1003,16 +1229,30 @@ const getEmbedUrl = (url: string) => {
 };
 
 function VideoPlayer({ video }: { video: PortfolioVideo }) {
-  if (isDirectVideoUrl(video.videoUrl)) {
-    return <video controls poster={video.cover} preload="metadata" src={video.videoUrl} />;
+  const [isActive, setIsActive] = useState(false);
+
+  if (!isActive) {
+    return (
+      <button className="video-cover-button" type="button" aria-label={`播放 ${video.title}`} onClick={() => setIsActive(true)}>
+        <img src={video.cover} alt={`${video.title} 视频封面`} loading="lazy" decoding="async" />
+        <i className="video-play-indicator" aria-hidden="true" />
+      </button>
+    );
   }
+
+  if (isDirectVideoUrl(video.videoUrl)) {
+    return <video autoPlay controls poster={video.cover} preload="metadata" src={video.videoUrl} />;
+  }
+
+  const embedUrl = getEmbedUrl(video.videoUrl);
+  const autoplayUrl = `${embedUrl}${embedUrl.includes("?") ? "&" : "?"}autoplay=1`;
 
   return (
     <iframe
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
       allowFullScreen
       loading="lazy"
-      src={getEmbedUrl(video.videoUrl)}
+      src={autoplayUrl}
       title={video.title}
     />
   );
@@ -1086,13 +1326,20 @@ function Header() {
 }
 
 function ProfileSection() {
+  const useStaticBackground = useMediaQuery("(max-width: 860px)");
+  const AuroraComponent = useDesktopComponent<AuroraProps>(loadAuroraComponent, !useStaticBackground);
+
   return (
     <section className="hero-section" id="profile">
       <div className="hero-video-bg" aria-hidden="true">
         {heroVideo ? <video autoPlay loop muted playsInline preload="metadata" src={heroVideo.videoUrl} /> : null}
       </div>
       <div className="hero-aurora-bg" aria-hidden="true">
-        <Aurora colorStops={["#8ccfd8", "#5227ff", "#dd6b5a"]} blend={0.44} amplitude={0.92} speed={0.42} />
+        {useStaticBackground || !AuroraComponent ? (
+          <div className="hero-static-aurora" />
+        ) : (
+          <AuroraComponent colorStops={["#8ccfd8", "#5227ff", "#dd6b5a"]} blend={0.44} amplitude={0.92} speed={0.42} />
+        )}
       </div>
       <div className="hero-bg-glass" aria-hidden="true" />
       <div className="intro-curtain" aria-hidden="true">
@@ -1266,7 +1513,7 @@ function DirectorySection() {
             <FadeIn className="directory-card" delay={index * 0.08} key={item.title}>
               <GlowFrame className="directory-glow-card">
                 <a href={item.href}>
-                <img src={asset(item.image.path)} alt={`${item.title} 封面`} loading="lazy" />
+                <img src={asset(item.image.path)} alt={`${item.title} 封面`} loading="lazy" decoding="async" />
                 <div>
                   <span>{item.meta}</span>
                   <h3>{item.title}</h3>
@@ -1417,21 +1664,28 @@ function ContactSection() {
 }
 
 function BelowHeroBackground({ children }: { children: ReactNode }) {
+  const useStaticBackground = useMediaQuery("(max-width: 860px)");
+  const LiquidEtherComponent = useDesktopComponent<LiquidEtherProps>(loadLiquidEtherComponent, !useStaticBackground);
+
   return (
     <div className="below-hero-background">
       <div className="below-hero-aurora" aria-hidden="true">
-        <LiquidEther
-          colors={["#071011", "#17363b", "#8ccfd8", "#5b5873"]}
-          mouseForce={8}
-          cursorSize={140}
-          resolution={0.42}
-          autoDemo
-          autoSpeed={0.28}
-          autoIntensity={1.24}
-          autoResumeDelay={1400}
-          autoRampDuration={1.1}
-          takeoverDuration={0.2}
-        />
+        {useStaticBackground || !LiquidEtherComponent ? (
+          <div className="below-hero-static-aurora" />
+        ) : (
+          <LiquidEtherComponent
+            colors={["#071011", "#17363b", "#8ccfd8", "#5b5873"]}
+            mouseForce={8}
+            cursorSize={140}
+            resolution={0.42}
+            autoDemo
+            autoSpeed={0.28}
+            autoIntensity={1.24}
+            autoResumeDelay={1400}
+            autoRampDuration={1.1}
+            takeoverDuration={0.2}
+          />
+        )}
       </div>
       <div className="below-hero-scrim" aria-hidden="true" />
       <div className="below-hero-content">{children}</div>
