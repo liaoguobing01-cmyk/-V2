@@ -1506,7 +1506,6 @@ function DirectorySection() {
         <SectionHeading
           eyebrow="Selected Catalog"
           title="精选目录"
-          text="从主图、A+、渲染图到视频，按照求职网站的浏览节奏组织完整作品。"
         />
         <div className="directory-grid">
           {directoryItems.map((item, index) => (
@@ -1564,7 +1563,7 @@ function VisualProjectSection({
           <ResearchPanel research={research} />
         </FadeIn>
         <DimensionGallery title="主图作品" images={mainImages} />
-        <DimensionGallery title="高级 A+ 模块" images={aplusImages} />
+        <DimensionGallery title="高级 A+" images={aplusImages} />
       </div>
     </section>
   );
