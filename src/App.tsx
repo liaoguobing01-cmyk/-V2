@@ -687,7 +687,6 @@ function usePortfolioMotion() {
         { selector: ".directory-grid", targets: ".directory-card" },
         { selector: ".research-glow-card" },
         { selector: ".gallery-grid", targets: ".image-card" },
-        { selector: ".video-grid", targets: ".video-card-shell" },
         { selector: ".contact-actions", targets: ".contact-action-glow" },
       ];
 
@@ -731,7 +730,35 @@ function usePortfolioMotion() {
         });
       });
 
-      gsap.utils.toArray<HTMLElement>(".image-frame img, .directory-card img, .video-card iframe, .video-card video").forEach((media) => {
+      gsap.utils.toArray<HTMLElement>(".video-grid").forEach((grid) => {
+        gsap.fromTo(
+          grid,
+          {
+            autoAlpha: 0,
+            clipPath: "inset(0% 0% 12% 0%)",
+            scale: 0.99,
+            transformOrigin: "center center",
+            willChange: "transform, opacity, clip-path",
+            y: 46,
+          },
+          {
+            autoAlpha: 1,
+            clearProps: "willChange",
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: 1.18,
+            ease: smoothEase,
+            scale: 1,
+            y: 0,
+            scrollTrigger: {
+              trigger: grid,
+              start: "top 82%",
+              once: true,
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(".image-frame img, .directory-card img").forEach((media) => {
         const trigger = media.closest<HTMLElement>(".image-frame, .directory-card, .video-card") ?? media;
 
         gsap.fromTo(
@@ -760,7 +787,7 @@ function usePortfolioMotion() {
         );
       });
 
-      gsap.utils.toArray<HTMLElement>(".image-frame, .directory-card a, .video-card").forEach((frame, index) => {
+      gsap.utils.toArray<HTMLElement>(".image-frame, .directory-card a").forEach((frame, index) => {
         gsap.to(frame, {
           ease: "none",
           yPercent: index % 2 === 0 ? -3.5 : 3.5,

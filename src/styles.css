@@ -1238,15 +1238,20 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
+  align-items: stretch;
 }
 
 .video-glow-card {
+  height: 100%;
   overflow: hidden;
 }
 
 .video-card {
   position: relative;
   height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: inherit;
   overflow: hidden;
   background:
@@ -1259,6 +1264,7 @@ a {
 .video-card iframe,
 .video-card video {
   width: 100%;
+  flex: 0 0 auto;
   display: block;
   border: 0;
   background: #050505;
@@ -1267,8 +1273,10 @@ a {
 }
 
 .video-card div {
+  min-height: 96px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 7px;
   padding: 20px;
 }
